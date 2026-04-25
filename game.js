@@ -12,7 +12,7 @@ bgMusic.loop = true;
 bgMusic.volume = 0.3;
 
 // Desbloqueo de Audio por interacción
-document.addEventListener('click', () = > {
+document.addEventListener('click', () => {
  if (bgMusic.paused && !state.gameOver) bgMusic.play();
 }, { once: true });
 
@@ -59,7 +59,7 @@ function triggerFeedback(type) {
  const flashClass = type === 'donut' ? 'flash-donut' : 'flash-broccoli';
  canvas.classList.add(flashClass);
 
- setTimeout(() = > {
+ setTimeout(() => {
  canvas.classList.remove('shake-effect', 'flash-donut', 'flash-broccoli');
  }, 150);
 }
@@ -103,14 +103,14 @@ function drawBubu() {
 function drawEntities() {
  ctx.font = "70px Arial";
  ctx.textAlign = "center";
- state.entities.forEach(ent = > {
+ state.entities.forEach(ent => {
  ctx.fillText(ent.type === 'donut' ? "🍩" : "🥦", ent.x, ent.y);
  });
 }
 
 function drawParticles() {
- state.particles.forEach((p, i) = > {
- p.x + = p.vx; p.y + = p.vy; p.life - = 0.04;
+ state.particles.forEach((p, i) => {
+ p.x += p.vx; p.y += p.vy; p.life -= 0.04;
  ctx.globalAlpha = p.life;
  ctx.fillStyle = p.color;
  ctx.fillRect(p.x, p.y, 8, 8);
@@ -120,7 +120,7 @@ function drawParticles() {
 }
 
 // --- INPUT HANDLERS ---
-const handleMove = (e) = > {
+const handleMove = (e) => {
  const rect = canvas.getBoundingClientRect();
  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
@@ -153,7 +153,7 @@ function loop(time) {
  // Proceso de Entidades
  for (let i = state.entities.length - 1; i >= 0; i--) {
  const ent = state.entities[i];
- ent.y + = ent.speed;
+ ent.y += ent.speed;
 
  if (checkCollision(state.bubu, ent)) {
  if (ent.type === 'donut') {
@@ -214,7 +214,7 @@ function testIntegrationDifficulty() {
  { d: 145, expected: 'SUPER', color: 'púrpura' }
  ];
 
- checkpoints.forEach(check = > {
+ checkpoints.forEach(check => {
  state.donuts = check.d; // Simulamos progreso
  const settings = getDifficultySettings(state.donuts);
  updateAtmosphere(); // Disparamos el cambio visual y sonoro
@@ -239,7 +239,7 @@ function testIntegrationDifficulty() {
 function runE2ETest() {
  console.log("🤖 Iniciando Bot E2E...");
 
- const testInterval = setInterval(() = > {
+ const testInterval = setInterval(() => {
  if (state.gameOver) {
  clearInterval(testInterval);
  console.log("🏁 Prueba E2E Terminada: El juego finalizó correctamente.");
@@ -247,7 +247,7 @@ function runE2ETest() {
  }
 
  // Buscar la primera dona en pantalla
- const targetDonut = state.entities.find(e = > e.type === 'donut');
+ const targetDonut = state.entities.find(e => e.type === 'donut');
 
  if (targetDonut) {
  // Mover a Bubu hacia la dona (Simulación de Input)
@@ -255,9 +255,9 @@ function runE2ETest() {
  state.bubu.y = targetDonut.y;
  } else {
  // Si no hay donas, esquivar brócolis (mover a Bubu lejos de ellos)
- const danger = state.entities.find(e = > e.type === 'broccoli');
+ const danger = state.entities.find(e => e.type === 'broccoli');
  if (danger && checkCollision(state.bubu, danger)) {
- state.bubu.x + = 50; // Esquiva simple
+ state.bubu.x += 50; // Esquiva simple
  }
  }
  }, 16); // Corre a la misma velocidad que el frame rate (60fps)
@@ -301,7 +301,7 @@ function runPerformanceTest(count = 1000) {
  }
 
  // Restaurar salud después de un rato
- setTimeout(() = > {
+ setTimeout(() => {
  state.broccoliHits = 0;
  console.log("🏁 Test de carga finalizado.");
  }, 5000);
