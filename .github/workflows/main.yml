@@ -1,0 +1,11 @@
+name: Bubu CI
+on: [push]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: HTML5 Lint
+        uses: chabad360/htmlvalidate-action@v1
+      - name: JavaScript Syntax Check
+        run: find . -name "*.js" | xargs -n 1 node -c

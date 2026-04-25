@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://cdn-icons-png.flaticon.com;">
+    
+    <title>Bubu Donut Quest | El Juego de la Osa Panda</title>
+    <link rel="stylesheet" href="style.css">
+    <meta name="description" content="Ayuda a la osa panda Bubu a recolectar 151 donas de sabores evitando los brócolis. Un juego ligero, rápido y open source.">
+    <meta name="keywords" content="Bubu, Panda, Juego, Open Source, PWA, Sin Lag">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/4359/4359642.png">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Bubu Donut Quest - 151 Donas Challenge">
+    <meta property="og:description" content="¿Podrás conseguir las 151 donas? Evita el brócoli en este juego de alta velocidad.">
+    <meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/4359/4359642.png">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Bubu Donut Quest">
+    <meta name="twitter:description" content="Juego ultra ligero de la panda Bubu. Cero latencia.">
+
+    
+</head>
+<body>
+    <h1>Bubu Donut Quest</h1>
+
+    <div id="game-container">
+        <div id="ui">
+            <div class="stat">🍩 <span id="donutCount">0</span>/151</div>
+            <div class="stat">🥦 <span id="broccoliCount">0</span>/10</div>
+            <div id="levelTag" class="stat">Fácil</div>
+        </div>
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <footer>
+        Desarrollado por <a href="https://github.com/santiagourdaneta/" target="_blank" rel="noopener">Santiago Urdaneta</a> &copy; 2026
+    </footer>
+
+   
+ 
+    <script src="game.js"></script>
+</body>
+</html>

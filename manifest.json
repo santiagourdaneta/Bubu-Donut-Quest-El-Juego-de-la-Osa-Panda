@@ -1,0 +1,17 @@
+{
+  "short_name": "BubuQuest",
+  "name": "Bubu Panda & The 151 Donuts",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/4359/4359642.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#ffe4e1",
+  "display": "standalone",
+  "scope": "./",
+  "theme_color": "#ffe4e1",
+  "description": "Ayuda a Bubu a recolectar 151 donas evitando el brocoli."
+}
