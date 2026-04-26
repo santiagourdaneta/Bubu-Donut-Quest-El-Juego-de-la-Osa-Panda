@@ -10,12 +10,12 @@
     <meta name="description" content="Ayuda a la osa panda Bubu a recolectar 151 donas de sabores evitando los brócolis. Un juego ligero, rápido y open source.">
     <meta name="keywords" content="Bubu, Panda, Juego, Open Source, PWA, Sin Lag">
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/4359/4359642.png">
+    <link rel="icon" href="./assets/bubu-donut-quest.jpg">
 
     <meta property="og:type" content="website">
     <meta property="og:title" content="Bubu Donut Quest - 151 Donas Challenge">
     <meta property="og:description" content="¿Podrás conseguir las 151 donas? Evita el brócoli en este juego de alta velocidad.">
-    <meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/4359/4359642.png">
+    <meta property="og:image" content="./assets/bubu-donut-quest.jpg">
     
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Bubu Donut Quest">
@@ -24,9 +24,31 @@
     
 </head>
 <body>
-    <h1>Bubu Donut Quest</h1>
+    <div id="ui-overlay">
+    <div id="start-card">
+        <h1>🐼 BUBU DONUT QUEST 🍩</h1>
+        <p class="tagline">¿Podrás conseguir las 151 donas?</p>
+        
+        <div id="instructions">
+            <h3>Objetivo</h3>
+            <p>Ayuda a Bubu a comer <strong>151 donas 🍩</strong> antes de que coma <strong>10 brócolis 🥦</strong>.</p>
+            <h3>Controles</h3>
+            <ul>
+                <li><strong>PC:</strong> Mueve el mouse para guiar a Bubu.</li>
+                <li><strong>Móvil:</strong> Desliza tu dedo sobre el canvas.</li>
+            </ul>
+        </div>
 
+        <button id="btn-start">INICIAR JUEGO</button>
+        <a href="#" id="link-rules">Ver reglas detalladas</a>
+    </div>
+</div>
+    
+ <h1>🐼 BUBU DONUT QUEST 🍩</h1>
+        <p class="tagline">¿Podrás conseguir las 151 donas?</p>
     <div id="game-container">
+
+        
         <div id="ui">
             <div class="stat">🍩 <span id="donutCount">0</span>/151</div>
             <div class="stat">🥦 <span id="broccoliCount">0</span>/10</div>
