@@ -135,7 +135,43 @@ function drawBubu() {
     ctx.ellipse(x + r * 0.35, y - r * 0.1, r * 0.2, r * 0.28, -Math.PI/4, 0, Math.PI*2);
     ctx.fill();
 }
+const NetworkEdge = {
+    requestCount: 0,
+    lastRequestTime: performance.now(),
+    
+    // Rate Limiting por ventana de tiempo
+    checkRateLimit() {
 
+        const now = performance.now();
+        const timeDiff = now - this.lastRequestTime;
+            
+            if (timeDiff > 500) { 
+                // Punto 140: Si el jugador dejó de chocar por medio segundo, reseteamos el castigo
+                state.bubu.speed = 1.0; 
+                this.requestCount = 0;
+            }
+
+            // Si el humano "hace click" más de 10 veces por segundo, sospechamos de un bot
+             
+            if (timeDiff < 100) {
+                this.requestCount++;
+            } else {
+                this.requestCount = Math.max(0, this.requestCount - 1); // Recuperación gradual
+            }
+
+       
+      
+        this.lastRequestTime = now;
+
+        if (this.requestCount > 15) {  
+                Telemetry.log('error', 'RATE LIMIT TRIGGERED', { count: this.requestCount });
+                return false;
+            }
+        return true;
+    }
+};
+
+ 
 // --- LOOP PRINCIPAL ---
 function loop(time) {
 
@@ -182,31 +218,46 @@ function loop(time) {
         
         ctx.fillText(ent.type === 'donut' ? "🍩" : "🥦", ent.x, ent.y);
 
-        if (checkCollision(state.bubu, ent)) {
-            handleCollision(ent, i);  
-        } else if (ent.y > LOG_H + 100) {
-            state.entities.splice(i, 1);
-        }
+       if (checkCollision(state.bubu, ent)) {
+           // Solo aquí verificamos el Rate Limit (al interactuar)
+           if (NetworkEdge.checkRateLimit()) {
+               handleCollision(ent, i);  
+           } else {
+               // Castigo real: solo si golpea demasiadas cosas demasiado rápido
+               state.bubu.speed = 0.5; 
+               Telemetry.log('warn', 'Throttling player: Rate Limit Exceeded');
+           }
+       } else if (ent.y > LOG_H + 100) {
+           // Limpieza normal: el objeto se fue, no es culpa de nadie
+           state.entities.splice(i, 1);
+       }
     }
-
+    // HEALTH CHECK: Si la latencia supera los 30ms, el sistema está degradado
+    if (parseFloat(Telemetry.metrics.latency) > 30) {
+        if (!state.degradedMode) {
+            state.degradedMode = true;
+            Telemetry.log('error', 'SYSTEM DEGRADED', { latency: Telemetry.metrics.latency });
+        }
+        
+        // Acción de emergencia: Si hay demasiadas entidades, eliminar las más antiguas
+        const dropAmount = Math.ceil(state.entities.length * 0.3); // Borramos el 30% de la carga
+        if (state.entities.length > 10) {
+               state.entities.splice(0, dropAmount);
+               Telemetry.log('warn', `Emergency: Shedding ${dropAmount} entities to recover FPS`);
+        }
+        
+        // Reducir partículas al mínimo
+        state.particles = state.particles.slice(0, 5);
+    } else {
+        state.degradedMode = false;
+    }
     drawBubu();
     // Al final del frame, dibujamos el Dashboard
     Telemetry.update(frameStart);
     drawTelemetryDashboard();
     requestAnimationFrame(loop);
 
-    // HEALTH CHECK: Si la latencia supera los 30ms, el sistema está degradado
-    if (parseFloat(Telemetry.metrics.latency) > 30) {
-        if (!state.degradedMode) {
-            state.degradedMode = true;
-            Telemetry.log('error', 'SYSTEM DEGRADED: High Latency Detected', { latency: Telemetry.metrics.latency });
-            
-            // Acción correctiva automática (Self-Healing)
-            state.particles = []; // Limpiamos partículas para liberar memoria
-        }
-    } else {
-        state.degradedMode = false;
-    }
+
 }
 
 // --- FIN DEL JUEGO ---
@@ -244,6 +295,7 @@ requestAnimationFrame(loop);
 const Telemetry = {
     metrics: {
         latency: 0,
+        p99: 0,
         fps: 0,
         history: [], // Almacén para el Sparkline
         maxHistory: 40, // Cuántos puntos mostrar en el gráfico
@@ -273,42 +325,27 @@ const Telemetry = {
             }
     },
 
-    update(frameStartTime) {
-        const now = performance.now();
-        this.metrics.latency = (now - frameStartTime).toFixed(2); // Latencia del frame
-        this.metrics.fps = Math.round(1000 / (now - this.metrics.lastTime));
-        this.metrics.lastTime = now;
-    }
+   update(frameStartTime) {
+       const now = performance.now();
+       const currentLatency = now - frameStartTime;
+       this.metrics.latency = currentLatency.toFixed(2);
+       
+ 
+       this.pushMetric(currentLatency);
+       
+       // Cálculo de p99
+       if (this.metrics.history.length > 10) {
+           const sorted = [...this.metrics.history].sort((a, b) => a - b);
+           this.metrics.p99 = sorted[Math.floor(sorted.length * 0.99)].toFixed(2);
+       }
+       
+       this.metrics.lastTime = now;  
+   }
+
+     
 };
 
-function drawTelemetryDashboard() {
-    ctx.save();
-    // Panel de fondo
-    ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-    ctx.fillRect(LOG_W - 230, 10, 220, 200);
-
-    const x = LOG_W - 220;
-    ctx.font = "14px monospace";
-    ctx.fillStyle = "#00ff00";
-    ctx.fillText(`SYSTEM TELEMETRY`, x, 30);
-    
-     ctx.fillStyle = "white";
-         ctx.fillText(`Latency: ${Telemetry.metrics.latency}ms`, x, 55);
-         ctx.fillText(`FPS: ${Telemetry.metrics.fps}`, x, 75);
-         
-         // Dibujar el Sparkline de Latencia
-         ctx.fillText(`LATENCY TREND:`, x, 105);
-         drawSparkline(x, 115, 200, 40);
-         
-         // Logs
-         if (Telemetry.logs.length > 0) {
-             ctx.fillStyle = "#aaa";
-             ctx.font = "10px monospace";
-             ctx.fillText(`> ${Telemetry.logs[Telemetry.logs.length-1].message}`, x, 185);
-         }
-         ctx.restore();
-}
-
+ 
 // En la carga de música
 bgMusic.onerror = () => {
     Telemetry.metrics.errors++;
@@ -417,3 +454,28 @@ const TestSuite = {
 
 // Exponer a la consola global para disparar pruebas bajo demanda
 window.TestSuite = TestSuite;
+
+function drawTelemetryDashboard() {
+    const x = LOG_W - 240;
+    const y = 40;  
+    const w = 220;
+    const h = 180;
+
+    ctx.save();
+    ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
+    ctx.strokeStyle = state.degradedMode ? "#ff0000" : "#00ff00";
+    ctx.lineWidth = 2;
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeRect(x, y, w, h);
+
+    ctx.fillStyle = "#00ff00";
+    ctx.font = "bold 12px monospace";
+    ctx.fillText(`LATENCY: ${Telemetry.metrics.latency}ms`, x + 10, y + 25);
+    ctx.fillText(`P99: ${Telemetry.metrics.p99}ms`, x + 10, y + 45);
+    ctx.fillText(`ENTITIES: ${state.entities.length}`, x + 10, y + 65);
+
+    // Dibujar el Sparkline dentro del recuadro
+    drawSparkline(x + 10, y + 80, 200, 80);
+    
+    ctx.restore();
+}

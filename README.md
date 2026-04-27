@@ -42,3 +42,12 @@ Santiago Urdaneta Anton Senior Software Architect Lima, Perú | 2026
 
 "HTML is enough. Performance is a feature."
 
+graph TD
+    A[Input: Mouse/Touch] --> B[Game Loop]
+    B --> C{Collision System}
+    C -->|Donut| D[Bus: COLLISION_DONUT]
+    C -->|Broccoli| E[Bus: COLLISION_BROCCOLI]
+    D --> F[Telemetry & Stats]
+    E --> F
+    F --> G[UI Update: 151/10 Limits]
+    G --> H[Atmosphere Engine: Pitch/Color]
